@@ -1,0 +1,50 @@
+data:
+  image: busybox:latest
+  volumes:
+    - ./:/app
+  entrypoint: tail -f /dev/null
+
+app:
+  build: docker/php
+  working_dir: /app
+  volumes_from:
+    - data
+  expose:
+    - 9000
+  links:
+    - db
+    - redis
+  environment:
+    XDEBUG_CONFIG: "idekey=PHPSTORM remote_enable=On remote_connect_back=On"
+
+nginx:
+  image: nginx:1.12-alpine
+  ports:
+    - "80:80"
+  volumes:
+    - ./:/app
+    - ./docker/nginx/vhost.conf:/etc/nginx/conf.d/vhost.conf
+  links:
+    - app
+
+redis:
+    image: redis:4.0.5-alpine
+    container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    ports:
+      - "6379:6379"
+
+db:
+  image: mysql:5.7
+  volumes:
+    - ./:/app
+    - /var/lib/mysql
+  ports:
+    - "33074:3306"
+  command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode="
+  environment:
+    MYSQL_ROOT_PASSWORD: db_password
+    MYSQL_DATABASE: main
+    MYSQL_USER: db_user
+    MYSQL_PASSWORD: db_password
