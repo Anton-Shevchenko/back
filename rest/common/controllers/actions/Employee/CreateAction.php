@@ -17,7 +17,7 @@ class CreateAction extends Action
         if (!$model->validate()) {
             return $model;
         }
-        $id = \Yii::$app->queue->push(new EmployeeJob($model));
-        return \Yii::$app->queue->isWaiting($id);
+        \Yii::$app->queue->push(new EmployeeJob($model));
+        $this->response->setStatusCode(204);
     }
 }

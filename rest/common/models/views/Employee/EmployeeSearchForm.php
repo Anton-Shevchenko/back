@@ -6,6 +6,7 @@ use yii\base\Model;
 use yii\db\ActiveQuery;
 use yii\data\ActiveDataProvider;
 use Yii;
+use yii\db\Expression;
 
 /**
  * Class EmployeeSearchForm
@@ -13,12 +14,15 @@ use Yii;
 class EmployeeSearchForm extends Model
 {
     /** @var string */
-    public $lastName;
+    public $fullName;
 
-    public function rules(): array
+    /** @var integer */
+    public $id;
+
+    public function rules()
     {
         return [
-            [['lastName'], 'string'],
+            [['fullName', 'id'], 'string'],
         ];
     }
 
@@ -33,14 +37,15 @@ class EmployeeSearchForm extends Model
             'query' => $query,
             'sort' => [
                 'attributes' => [
-                    'lastName',
+                    'fullName',
+                    'id'
                 ],
                 'defaultOrder' => [
-                    'lastName' => SORT_ASC,
+                    'id'=> SORT_DESC,
                 ],
             ],
             'pagination' => [
-                'defaultPageSize' => 10
+                'defaultPageSize' => 100
             ]
         ]);
 
@@ -49,6 +54,9 @@ class EmployeeSearchForm extends Model
 
     private function bindFilters(ActiveQuery $query)
     {
-        $query->andFilterWhere(['like', Employee::tableName() . '.lastName', $this->lastName]);
+        $query->andFilterWhere([
+            'like',
+            new Expression("concat_ws(' ', firstName, lastName)"), $this->fullName
+        ]);
     }
 }

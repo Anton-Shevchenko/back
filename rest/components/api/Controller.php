@@ -21,7 +21,7 @@ class Controller extends BaseController
     /**
      * @inheritdoc
      */
-    public $serializer = ['class' => Serializer::class];
+    public $serializer = ['class' => Serializer::class, 'collectionEnvelope' => 'items'];
 
     /**
      * @inheritdoc
